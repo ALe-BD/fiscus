@@ -1,10 +1,12 @@
 
+import 'package:fiscus/screens/report_page.dart';
 import 'package:flutter/material.dart';
 import 'home_page.dart';
 import 'camera_page.dart';
 import 'setting_page.dart';
 import 'stocks_page.dart';
 import 'budget_page.dart';
+import 'spending_page.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // List of pages to navigate to
   final List<Widget> _pages = [
     HomePage(), // Home page
-    BudgetPage(), // Reports page
+    ReportPage(), // Reports page
     CameraPage(), // Camera page
     StocksPage(), // Stocks page
     SettingsPage(), // Settings page
