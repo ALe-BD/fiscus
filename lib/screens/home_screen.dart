@@ -1,9 +1,10 @@
 
 import 'package:flutter/material.dart';
-import 'dashboard_screen.dart';
-import 'budget_screen.dart';
-import 'charts_screen.dart';
-import 'profile_screen.dart';
+import 'home_page.dart';
+import 'camera_page.dart';
+import 'setting_page.dart';
+import 'stocks_page.dart';
+import 'budget_page.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,26 +16,56 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
-  final List<Widget> _screens = [
-    const DashboardScreen(),
-    const BudgetScreen(),
-    const ChartsScreen(),
-    const ProfileScreen(),
+  // List of pages to navigate to
+  final List<Widget> _pages = [
+    HomePage(), // Home page
+    BudgetPage(), // Reports page
+    CameraPage(), // Camera page
+    StocksPage(), // Stocks page
+    SettingsPage(), // Settings page
   ];
+
+  // Function to handle navigation item selection
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_selectedIndex],
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _pages,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
-        onTap: (index) => setState(() => _selectedIndex = index),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
-          BottomNavigationBarItem(icon: Icon(Icons.account_balance_wallet), label: 'Budget'),
-          BottomNavigationBarItem(icon: Icon(Icons.pie_chart), label: 'Analytics'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+        onTap: _onItemTapped,
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Accounts',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.bar_chart),
+            label: 'Reports',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.camera_alt),
+            label: 'Camera',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.attach_money),
+            label: 'Stocks',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
         ],
+        selectedItemColor: Colors.blue, // Selected icon color
+        unselectedItemColor: Colors.grey, // Unselected icon color
       ),
     );
   }
