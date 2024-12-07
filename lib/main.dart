@@ -5,8 +5,8 @@ import 'screens/auth_screen.dart';
 import 'screens/home_screen.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  //WidgetsFlutterBinding.ensureInitialized();
+  //await Firebase.initializeApp();
   runApp(const MainApp());
 }
 
@@ -21,6 +21,8 @@ class MainApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         brightness: Brightness.light,
       ),
+      home: HomeScreen(),
+      /*
       home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
@@ -33,6 +35,7 @@ class MainApp extends StatelessWidget {
           return const AuthScreen();
         },
       ),
+      */
     );
   }
 }
