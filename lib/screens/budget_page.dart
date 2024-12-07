@@ -9,10 +9,67 @@ class BudgetPage extends StatefulWidget {
 class _BudgetPageState extends State<BudgetPage> {
   // List to store budget items
   List<BudgetItem> budgetItems = [
-    BudgetItem(label: 'Taxes', percentage: 65, color: Colors.blue.shade800),
-    BudgetItem(label: 'Food', percentage: 20, color: Colors.lightBlue.shade300),
-    BudgetItem(label: 'Entertainment', percentage: 15, color: Colors.lightBlueAccent),
+    BudgetItem(label: 'Taxes', percentage: 65, color: Colors.blue.shade800, amount: 100),
+    BudgetItem(label: 'Food', percentage: 20, color: Colors.lightBlue.shade300, amount: 100),
+    BudgetItem(label: 'Entertainment', percentage: 15, color: Colors.red, amount: 100),
   ];
+  // Method edit
+  void _showEditBudgetItemDialog(BuildContext context, int index) {
+  final TextEditingController labelController =
+      TextEditingController(text: budgetItems[index].label);
+  final TextEditingController percentageController =
+      TextEditingController(text: budgetItems[index].percentage.toString());
+
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text('Edit Budget Item'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: labelController,
+              decoration: InputDecoration(labelText: 'Label'),
+            ),
+            TextField(
+              controller: percentageController,
+              decoration: InputDecoration(labelText: 'Percentage'),
+              keyboardType: TextInputType.number,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final label = labelController.text;
+              final percentage = double.tryParse(percentageController.text) ?? 0;
+              if (label.isNotEmpty && percentage > 0) {
+                setState(() {
+                  budgetItems[index] = BudgetItem(
+                    label: label,
+                    percentage: percentage,
+                    color: budgetItems[index].color,
+                    amount: budgetItems[index].amount,
+                  );
+                });
+                checkTotalPercentage();
+              }
+              Navigator.of(context).pop();
+            },
+            child: Text('Save'),
+          ),
+        ],
+      );
+    },
+  );
+}  
 
   // Method to calculate the total percentage
   double getTotalPercentage() {
@@ -29,7 +86,7 @@ class _BudgetPageState extends State<BudgetPage> {
         PieChartSectionData(
           color: Colors.grey.shade300,
           value: 1,
-          radius: 60,
+          radius: 70,
           showTitle: false,
         ),
       ];
@@ -42,7 +99,7 @@ class _BudgetPageState extends State<BudgetPage> {
         color: item.color,
         value: adjustedPercentage,
         title: '${adjustedPercentage.toStringAsFixed(1)}%',
-        radius: 60,
+        radius: 70,
         titleStyle: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.bold,
@@ -75,7 +132,7 @@ class _BudgetPageState extends State<BudgetPage> {
   // Method to add a new budget item
   void addBudgetItem(String label, double percentage, Color color) {
     setState(() {
-      budgetItems.add(BudgetItem(label: label, percentage: percentage, color: color));
+      budgetItems.add(BudgetItem(label: label, percentage: percentage, color: color, amount: 100));
     });
     checkTotalPercentage();
   }
@@ -177,31 +234,33 @@ class _BudgetPageState extends State<BudgetPage> {
               SizedBox(height: 20),
               // Scrollable Budget Items
               Expanded(
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Column(
-                      children: budgetItems
-                          .asMap()
-                          .entries
-                          .map(
-                            (entry) => Column(
-                              children: [
-                                BudgetItemCard(
-                                  label: entry.value.label,
-                                  percentage: '${entry.value.percentage}%',
-                                  color: entry.value.color,
-                                  onDelete: () => removeBudgetItem(entry.key),
-                                ),
-                                SizedBox(height: 10),
-                              ],
-                            ),
-                          )
-                          .toList(),
-                    ),
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Column(
+                    children: budgetItems
+                      .asMap()
+                      .entries
+                      .map(
+                        (entry) => Column(
+                          children: [
+                            BudgetItemCard(
+                              label: entry.value.label,
+                              percentage: '${entry.value.percentage}%',
+                              color: entry.value.color,
+                              amount: entry.value.amount,
+                              onDelete: () => removeBudgetItem(entry.key),
+                              onEdit: () => _showEditBudgetItemDialog(context, entry.key),
                   ),
-                ),
+                  SizedBox(height: 10),
+                ],
               ),
+            )
+            .toList(),
+      ),
+    ),
+  ),
+),
               // Add Budget Item Button
               Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -275,8 +334,8 @@ class _BudgetPageState extends State<BudgetPage> {
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.2),
-            blurRadius: 6,
-            spreadRadius: 2,
+            blurRadius: 1,
+            spreadRadius: 1,
             offset: Offset(0, 3),
           ),
         ],
@@ -290,32 +349,66 @@ class BudgetItem {
   final String label;
   final double percentage;
   final Color color;
+  final double amount;
 
-  BudgetItem({required this.label, required this.percentage, required this.color});
+  BudgetItem({required this.label, required this.percentage, required this.color, required this.amount});
 }
 
 // Widget for Budget Item Card
 class BudgetItemCard extends StatelessWidget {
   final String label;
   final String percentage;
+  final double amount;
   final Color color;
   final VoidCallback? onDelete;
+  final VoidCallback? onEdit;
 
-  BudgetItemCard({required this.label, required this.percentage, required this.color, this.onDelete});
+  BudgetItemCard({
+    required this.label,
+    required this.percentage,
+    required this.color,
+    this.onDelete,
+    this.onEdit,
+    required this.amount,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: color.withOpacity(0.8),
-      child: ListTile(
-        title: Text(label, style: TextStyle(color: Colors.white)),
-        subtitle: Text(percentage, style: TextStyle(color: Colors.white70)),
-        trailing: IconButton(
-          icon: Icon(Icons.delete, color: Colors.white),
-          onPressed: onDelete,
+    return GestureDetector(
+      onTap: onEdit, // Trigger edit dialog when tapped
+      child: Card(
+        color: color.withOpacity(0.8),
+        child: ListTile(
+          title: Text(
+            label,
+            style: TextStyle(color: Colors.white),
+          ),
+          subtitle: Text(
+            percentage,
+            style: TextStyle(color: Colors.white70),
+          ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '\$${amount.toStringAsFixed(2)}', // Format the amount
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18, // Larger font size
+                ),
+              ),
+              SizedBox(width: 8), // Spacing
+              IconButton(
+                icon: Icon(Icons.delete, color: Colors.white),
+                onPressed: onDelete,
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
-  
+
 }
+  
+

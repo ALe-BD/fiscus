@@ -201,8 +201,8 @@ class SpendingReportPage extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.2),
-            blurRadius: 6,
-            spreadRadius: 2,
+            blurRadius: 1,
+            spreadRadius: 1,
             offset: Offset(0, 3),
           ),
         ],
