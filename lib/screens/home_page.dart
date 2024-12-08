@@ -3,7 +3,55 @@
 import 'package:fiscus/componets/Account_Card.dart';
 import 'package:flutter/material.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  // Initialize account balances
+  double debitBalance = 0.0;
+  double creditBalance = 0.0;
+  double savingsBalance = 0.0;
+  double walletBalance = 0.0;
+
+  // Function to update account balances
+  void _showAddMoneyDialog(BuildContext context) {
+    final TextEditingController amountController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Add Money to Wallet'),
+          content: TextField(
+            controller: amountController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(hintText: 'Enter amount'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(), // Close dialog
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                final enteredAmount = double.tryParse(amountController.text);
+                if (enteredAmount != null) {
+                  setState(() {
+                    walletBalance += enteredAmount; // Update balance using setState
+                  });
+                }
+                Navigator.of(context).pop(); // Close dialog
+              },
+              child: Text('Add'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,8 +71,7 @@ class HomePage extends StatelessWidget {
             children: [
               SizedBox(height: 50), // Adjust as needed for spacing
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 child: Row(
                   children: [
                     CircleAvatar(
@@ -54,33 +101,71 @@ class HomePage extends StatelessWidget {
                   ],
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '[Bank Name]:',
+                      style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
+                    ),
+                  ],
+                ),
+              ),
+              // Scrollable Area with Edge Fading
               Expanded(
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(right: 175.0),
-                          child: Text(
-                            '[Bank Name]:',
-                            style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white),
-                          ),
-                        ),
-                        AccountCard(title: 'Debit', amount: '\$0.00'),
-                        AccountCard(title: 'Credit', amount: '\$0.00'),
-                        AccountCard(title: 'Savings', amount: '\$0.00'),
+                child: ShaderMask(
+                  shaderCallback: (Rect bounds) {
+                    return LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent, // Top fade
+                        Colors.black,       // Fully visible content
+                        Colors.black,       // Fully visible content
+                        Colors.transparent, // Bottom fade
                       ],
+                      stops: [0.0, 0.01, 0.99, 1.0], // Control the fade range
+                    ).createShader(bounds);
+                  },
+                  blendMode: BlendMode.dstIn, // Blend mode for fading
+                  child: SingleChildScrollView(
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            AccountCard(
+                              title: 'Debit',
+                              amount: debitBalance,
+                            ),
+                            AccountCard(
+                              title: 'Credit',
+                              amount: creditBalance,
+                            ),
+                            AccountCard(
+                              title: 'Savings',
+                              amount: savingsBalance,
+                            ),
+                            AccountCard(
+                              title: 'Wallet',
+                              amount: walletBalance,
+                              onAddMoney: () => _showAddMoneyDialog(context),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(bottom: 16.0),
+                padding: const EdgeInsets.symmetric(vertical: 10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -99,3 +184,4 @@ class HomePage extends StatelessWidget {
     );
   }
 }
+
