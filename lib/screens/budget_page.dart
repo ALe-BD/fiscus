@@ -234,33 +234,49 @@ class _BudgetPageState extends State<BudgetPage> {
               SizedBox(height: 20),
               // Scrollable Budget Items
               Expanded(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Column(
-                    children: budgetItems
-                      .asMap()
-                      .entries
-                      .map(
-                        (entry) => Column(
-                          children: [
-                            BudgetItemCard(
-                              label: entry.value.label,
-                              percentage: '${entry.value.percentage}%',
-                              color: entry.value.color,
-                              amount: entry.value.amount,
-                              onDelete: () => removeBudgetItem(entry.key),
-                              onEdit: () => _showEditBudgetItemDialog(context, entry.key),
-                  ),
-                  SizedBox(height: 10),
-                ],
-              ),
-            )
-            .toList(),
+                child: ShaderMask(
+                  shaderCallback: (Rect bounds) {
+                    return LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent, // Top fade
+                        Colors.black,       // Fully visible content
+                        Colors.black,       // Fully visible content
+                        Colors.transparent, // Bottom fade
+                      ],
+                      stops: [0.0, 0.02, 0.98, 1.0], // Control the fade range
+                    ).createShader(bounds);
+                  },
+                  blendMode: BlendMode.dstIn, // Blend mode for fading
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Column(
+                        children: budgetItems
+                          .asMap()
+                          .entries
+                          .map(
+                            (entry) => Column(
+                              children: [
+                                BudgetItemCard(
+                                  label: entry.value.label,
+                                  percentage: '${entry.value.percentage}%',
+                                  color: entry.value.color,
+                                  amount: entry.value.amount*(entry.value.percentage/100),
+                                  onDelete: () => removeBudgetItem(entry.key),
+                                  onEdit: () => _showEditBudgetItemDialog(context, entry.key),
+                              ),
+                              SizedBox(height: 10),
+                            ],
+                          ),
+                        )
+                        .toList(),
+            ),
+          ),
+        ),
       ),
     ),
-  ),
-),
               // Add Budget Item Button
               Padding(
                 padding: const EdgeInsets.all(16.0),

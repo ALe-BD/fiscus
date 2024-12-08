@@ -22,7 +22,7 @@ class MainApp extends StatelessWidget {
         brightness: Brightness.light,
       ),
       home: HomeScreen(),
-      /*
+/*
       home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
@@ -35,7 +35,7 @@ class MainApp extends StatelessWidget {
           return const AuthScreen();
         },
       ),
-      */
+*/
     );
   }
 }
