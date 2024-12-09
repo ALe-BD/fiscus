@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/src/rendering/box.dart';
 
 double balance = 14000;
 double currAmount = 14000;
@@ -16,33 +15,94 @@ class _BudgetPageState extends State<BudgetPage> {
     BudgetItem(label: 'Food', percentage: 20, color: Colors.lightBlue.shade300, amount: 2800),
     BudgetItem(label: 'Entertainment', percentage: 15, color: Colors.red, amount: 2100),
   ];
+  
+  Future<double> setCurrentAmount(BuildContext context) async {
+  final TextEditingController budgetController = TextEditingController();
+
+  final result = await showDialog<double?>(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text('Custom Budget'),
+        content: TextField(
+          controller: budgetController,
+          decoration: InputDecoration(labelText: 'Amount'),
+          keyboardType: TextInputType.number,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(null); // Return null if canceled
+            },
+            child: Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final budget = double.tryParse(budgetController.text) ?? 0;
+              Navigator.of(context).pop(budget); // Return the entered value
+            },
+            child: Text('Confirm'),
+          ),
+        ],
+      );
+    },
+  );
+
+  // Ensure a non-null value is always returned
+  return result ?? 0.0;
+}
+  
   int selectedPeriod = 0; // 0: Year, 1: Week, 2: Month, 3: Day
 
-  // Function to update the amount for all budget items
-  void updateAmountsForAll(int periodic) {
+void update() {
   setState(() {
-    if(periodic == 0) {
-      for (var item in budgetItems) {
-        item.amount = balance * (item.percentage / 100);
-        currAmount = balance;
-      }
-    }else if (periodic == 1) {
-      for (var item in budgetItems) {
-        item.amount = (balance/12) * (item.percentage / 100);
-        currAmount = balance/12;
-      }
-    }else if (periodic == 2) {
-      for (var item in budgetItems) {
-        item.amount = (balance/52) * (item.percentage / 100);
-        currAmount = balance/52;
-      }
-    }else {
-      for (var item in budgetItems) {
-        item.amount = (balance/365) * (item.percentage / 100);
-        currAmount = balance/365;
-      }
-    }
+    currAmount = currAmount + 1;
+    currAmount = currAmount - 1;
   });
+}
+
+  // Function to update the amount for all budget items
+Future<void> updateAmountsForAll(int periodic) async {
+  if (periodic == 0) {
+    setState(() {
+      currAmount = balance;
+      for (var item in budgetItems) {
+        item.amount = currAmount * (item.percentage / 100);
+      }
+    });
+  } else if (periodic == 1) {
+    setState(() {
+      currAmount = balance / 12;
+      for (var item in budgetItems) {
+        item.amount = currAmount * (item.percentage / 100);
+      }
+    });
+  } else if (periodic == 2) {
+    setState(() {
+      currAmount = balance / 52;
+      for (var item in budgetItems) {
+        item.amount = currAmount * (item.percentage / 100);
+      }
+    });
+  } else if (periodic == 3) {
+    setState(() {
+      currAmount = balance / 365;
+      for (var item in budgetItems) {
+        item.amount = currAmount * (item.percentage / 100);
+      }
+    });
+  } else if (periodic == 4) {
+    // Custom budget logic
+    final budget = await setCurrentAmount(context); // Wait for dialog result
+    if (budget > 0) {
+      setState(() {
+        currAmount = budget;
+        for (var item in budgetItems) {
+          item.amount = currAmount * (item.percentage / 100);
+        }
+      });
+    }
+  }
 }
 
 
@@ -89,9 +149,10 @@ class _BudgetPageState extends State<BudgetPage> {
                     label: label,
                     percentage: percentage,
                     color: budgetItems[index].color,
-                    amount: budgetItems[index].amount,
+                    amount: currAmount * (percentage/100),
                   );
                 });
+                //update();
                 checkTotalPercentage();
               }
               Navigator.of(context).pop();
@@ -287,6 +348,10 @@ class _BudgetPageState extends State<BudgetPage> {
                       DropdownMenuItem(
                         value: 3,
                         child: Text('Day'),
+                      ),
+                      DropdownMenuItem(
+                        value: 4,
+                        child: Text('Custom Budget'),
                       ),
                     ],
                       onChanged: (value) {
@@ -492,7 +557,6 @@ class BudgetItemCard extends StatelessWidget {
       ),
     );
   }
-
 }
   
 
