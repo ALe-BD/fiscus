@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 class AccountCard extends StatelessWidget {
   final String title;
   final double amount;
-  final VoidCallback? onAddMoney; // Nullable callback
+  final VoidCallback? onAddMoney;
 
   AccountCard({
     required this.title,
     required this.amount,
-    this.onAddMoney, // Optional parameter
+    this.onAddMoney,
   });
 
   @override
@@ -16,50 +16,43 @@ class AccountCard extends StatelessWidget {
     return Card(
       margin: EdgeInsets.symmetric(vertical: 8.0),
       color: Colors.white.withOpacity(0.9), // Slightly transparent
-      child: Stack(
+      child: Row(
         children: [
-          Padding(
-            padding: const EdgeInsets.only(
-            left: 20, right: 250, bottom: 16.0, top: 16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(fontSize: 18, color: Colors.grey.shade700),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  '\$${amount.toStringAsFixed(2)}',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-              ],
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(fontSize: 18, color: Colors.grey.shade700),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    '\$${amount.toStringAsFixed(2)}',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    overflow: TextOverflow.ellipsis, // Prevent overflow issues
+                  ),
+                ],
+              ),
             ),
           ),
-          // Positioned "Add" button at the top right
           if (onAddMoney != null) // Only show button if onAddMoney is provided
-            Positioned(
-              top: 8.0,
-              right: 8.0,
-              child: IconButton(
-                icon: Icon(
-                  Icons.add,
-                  color: Colors.black, // Color of the icon
-                ),
-                onPressed: onAddMoney, // Callback when pressed
+            IconButton(
+              icon: Icon(
+                Icons.add,
+                color: Colors.black, // Color of the icon
               ),
-            ),
-          if (onAddMoney == null) // Grey out button if onAddMoney is null
-            Positioned(
-              top: 8.0,
-              right: 8.0,
-              child: IconButton(
-                icon: Icon(
-                  Icons.add,
-                  color: Colors.grey, // Grey out the icon
-                ),
-                onPressed: null, // Disable the button
+              onPressed: onAddMoney, // Callback when pressed
+            )
+          else
+            IconButton(
+              icon: Icon(
+                Icons.add,
+                color: Colors.grey, // Grey out the icon
               ),
+              onPressed: null, // Disable the button
             ),
         ],
       ),
