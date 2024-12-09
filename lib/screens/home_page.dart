@@ -10,11 +10,15 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   // Initialize account balances
-  double debitBalance = 0.0;
+  double debitBalance = 14000.0;
   double creditBalance = 0.0;
   double savingsBalance = 0.0;
   double walletBalance = 0.0;
+  double balance = 14000.0;
 
+  void totalBalanceCal(BuildContext context){
+    balance = debitBalance + walletBalance;
+  }
   // Function to update account balances
   void _showAddMoneyDialog(BuildContext context) {
     final TextEditingController amountController = TextEditingController();
@@ -41,6 +45,7 @@ class _HomePageState extends State<HomePage> {
                   setState(() {
                     walletBalance += enteredAmount; // Update balance using setState
                   });
+                  totalBalanceCal(context);
                 }
                 Navigator.of(context).pop(); // Close dialog
               },
@@ -95,6 +100,36 @@ class _HomePageState extends State<HomePage> {
                               fontSize: 30,
                               fontWeight: FontWeight.bold,
                               color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Stack(
+                      children: [
+                        // Shadow text
+                        Text(
+                          'Total Balance: \$${balance.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            fontSize: 23.2,
+                            
+                            color: Colors.black.withOpacity(0.5), // Shadow color
+                          ),
+                        ),
+                        // Foreground text
+                        Text(
+                          'Total Balance: \$${balance.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            fontSize: 23,
+                            
+                            color: Colors.white,
+                          ),
                         ),
                       ],
                     ),

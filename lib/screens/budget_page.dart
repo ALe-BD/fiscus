@@ -9,9 +9,9 @@ class BudgetPage extends StatefulWidget {
 class _BudgetPageState extends State<BudgetPage> {
   // List to store budget items
   List<BudgetItem> budgetItems = [
-    BudgetItem(label: 'Taxes', percentage: 65, color: Colors.blue.shade800, amount: 100),
-    BudgetItem(label: 'Food', percentage: 20, color: Colors.lightBlue.shade300, amount: 100),
-    BudgetItem(label: 'Entertainment', percentage: 15, color: Colors.red, amount: 100),
+    BudgetItem(label: 'Taxes', percentage: 65, color: Colors.blue.shade800, amount: 10000),
+    BudgetItem(label: 'Food', percentage: 20, color: Colors.lightBlue.shade300, amount: 10000),
+    BudgetItem(label: 'Entertainment', percentage: 15, color: Colors.red, amount: 10000),
   ];
   // Method edit
   void _showEditBudgetItemDialog(BuildContext context, int index) {
@@ -132,7 +132,7 @@ class _BudgetPageState extends State<BudgetPage> {
   // Method to add a new budget item
   void addBudgetItem(String label, double percentage, Color color) {
     setState(() {
-      budgetItems.add(BudgetItem(label: label, percentage: percentage, color: color, amount: 100));
+      budgetItems.add(BudgetItem(label: label, percentage: percentage, color: color, amount: 10000));
     });
     checkTotalPercentage();
   }
