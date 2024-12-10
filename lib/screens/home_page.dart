@@ -1,7 +1,8 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
-
-import 'package:fiscus/componets/Account_Card.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fiscus/componets/Account_Card.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -9,6 +10,25 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  String _userName = 'Loading...';
+
+  @override
+  void initState() {
+    super.initState();
+    _getUserName();
+  }
+
+  Future<void> _getUserName() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      setState(() {
+        _userName = prefs.getString('first_name') ?? 'User';
+      });
+    } catch (e) {
+      print('Error fetching user name: $e');
+    }
+  }
+
   // Initialize account balances
   double debitBalance = 14000.0;
   double creditBalance = 0.0;
@@ -62,7 +82,6 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: Stack(
         children: [
-          // Background Image
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
@@ -71,10 +90,9 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-          // Overlay Content
           Column(
             children: [
-              SizedBox(height: 50), // Adjust as needed for spacing
+              SizedBox(height: 50),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 child: Row(
@@ -89,23 +107,18 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         Text(
                           'Welcome,',
-                          style: TextStyle(
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white),
+                          style: TextStyle(fontSize: 30, color: Colors.white),
                         ),
                         Text(
-                          '[Name]',
-                          style: TextStyle(
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white),
+                          _userName,
+                          style: TextStyle(fontSize: 30, color: Colors.white),
                         ),
                       ],
                     ),
                   ],
                 ),
               ),
+              
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 30.0),
                 child: Row(
@@ -142,7 +155,7 @@ class _HomePageState extends State<HomePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '[Bank Name]:',
+                      'Wells Fargo:',
                       style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
