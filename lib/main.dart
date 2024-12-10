@@ -28,6 +28,7 @@ class MainApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
+<<<<<<< HEAD
       home: const AuthWrapper(),
       routes: {
         '/signup': (context) => SignUpPage(),
@@ -65,6 +66,23 @@ class AuthWrapper extends StatelessWidget {
           return LoginPage();
         }
       },
+=======
+      home: HomeScreen(),
+/*
+      home: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const CircularProgressIndicator();
+          }
+          if (snapshot.hasData) {
+            return const HomeScreen();
+          }
+          return const AuthScreen();
+        },
+      ),
+*/
+>>>>>>> 1bcd348387ccea8f1a3e1525c7e41d9637b8317f
     );
   }
 }

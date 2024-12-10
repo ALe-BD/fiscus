@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
+double balance = 14000;
+double currAmount = 14000;
 class BudgetPage extends StatefulWidget {
   @override
   _BudgetPageState createState() => _BudgetPageState();
@@ -9,10 +11,101 @@ class BudgetPage extends StatefulWidget {
 class _BudgetPageState extends State<BudgetPage> {
   // List to store budget items
   List<BudgetItem> budgetItems = [
-    BudgetItem(label: 'Taxes', percentage: 65, color: Colors.blue.shade800, amount: 100),
-    BudgetItem(label: 'Food', percentage: 20, color: Colors.lightBlue.shade300, amount: 100),
-    BudgetItem(label: 'Entertainment', percentage: 15, color: Colors.red, amount: 100),
+    BudgetItem(label: 'Taxes', percentage: 65, color: Colors.blue.shade800, amount: 9100),
+    BudgetItem(label: 'Food', percentage: 20, color: Colors.lightBlue.shade300, amount: 2800),
+    BudgetItem(label: 'Entertainment', percentage: 15, color: Colors.red, amount: 2100),
   ];
+  
+  Future<double> setCurrentAmount(BuildContext context) async {
+  final TextEditingController budgetController = TextEditingController();
+
+  final result = await showDialog<double?>(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text('Custom Budget'),
+        content: TextField(
+          controller: budgetController,
+          decoration: InputDecoration(labelText: 'Amount'),
+          keyboardType: TextInputType.number,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(null); // Return null if canceled
+            },
+            child: Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final budget = double.tryParse(budgetController.text) ?? 0;
+              Navigator.of(context).pop(budget); // Return the entered value
+            },
+            child: Text('Confirm'),
+          ),
+        ],
+      );
+    },
+  );
+
+  // Ensure a non-null value is always returned
+  return result ?? 0.0;
+}
+  
+  int selectedPeriod = 0; // 0: Year, 1: Week, 2: Month, 3: Day
+
+void update() {
+  setState(() {
+    currAmount = currAmount + 1;
+    currAmount = currAmount - 1;
+  });
+}
+
+  // Function to update the amount for all budget items
+Future<void> updateAmountsForAll(int periodic) async {
+  if (periodic == 0) {
+    setState(() {
+      currAmount = balance;
+      for (var item in budgetItems) {
+        item.amount = currAmount * (item.percentage / 100);
+      }
+    });
+  } else if (periodic == 1) {
+    setState(() {
+      currAmount = balance / 12;
+      for (var item in budgetItems) {
+        item.amount = currAmount * (item.percentage / 100);
+      }
+    });
+  } else if (periodic == 2) {
+    setState(() {
+      currAmount = balance / 52;
+      for (var item in budgetItems) {
+        item.amount = currAmount * (item.percentage / 100);
+      }
+    });
+  } else if (periodic == 3) {
+    setState(() {
+      currAmount = balance / 365;
+      for (var item in budgetItems) {
+        item.amount = currAmount * (item.percentage / 100);
+      }
+    });
+  } else if (periodic == 4) {
+    // Custom budget logic
+    final budget = await setCurrentAmount(context); // Wait for dialog result
+    if (budget > 0) {
+      setState(() {
+        currAmount = budget;
+        for (var item in budgetItems) {
+          item.amount = currAmount * (item.percentage / 100);
+        }
+      });
+    }
+  }
+}
+
+
   // Method edit
   void _showEditBudgetItemDialog(BuildContext context, int index) {
   final TextEditingController labelController =
@@ -56,9 +149,10 @@ class _BudgetPageState extends State<BudgetPage> {
                     label: label,
                     percentage: percentage,
                     color: budgetItems[index].color,
-                    amount: budgetItems[index].amount,
+                    amount: currAmount * (percentage/100),
                   );
                 });
+                //update();
                 checkTotalPercentage();
               }
               Navigator.of(context).pop();
@@ -132,7 +226,7 @@ class _BudgetPageState extends State<BudgetPage> {
   // Method to add a new budget item
   void addBudgetItem(String label, double percentage, Color color) {
     setState(() {
-      budgetItems.add(BudgetItem(label: label, percentage: percentage, color: color, amount: 100));
+      budgetItems.add(BudgetItem(label: label, percentage: percentage, color: color, amount: currAmount*(percentage/100)));
     });
     checkTotalPercentage();
   }
@@ -142,7 +236,6 @@ class _BudgetPageState extends State<BudgetPage> {
     setState(() {
       budgetItems.removeAt(index);
     });
-    checkTotalPercentage();
   }
 
   // Warn if total percentage exceeds 100%
@@ -220,50 +313,106 @@ class _BudgetPageState extends State<BudgetPage> {
                   ),
                 ),
               ),
-              SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildCircleWithShadow(Icons.circle, Colors.grey),
-                  SizedBox(width: 8),
-                  _buildCircleWithShadow(Icons.circle, Colors.grey.shade300),
-                  SizedBox(width: 8),
-                  _buildCircleWithShadow(Icons.circle, Colors.grey.shade300),
-                ],
+              SizedBox(height: 10),
+              // Dropdown menu for selecting time period (Day, Month, Week, Year)
+              // Row with Dropdown and Current Amount
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Current Amount Display
+                    Text(
+                      'Budget: \$${currAmount.toStringAsFixed(2)}',
+                      style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0), fontSize: 16),
+                    ),
+                    // Dropdown menu for selecting time period (Day, Month, Week, Year)
+                    DropdownButton<int>(
+                      value: selectedPeriod,
+                      
+                      dropdownColor: Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                      items: [
+                      DropdownMenuItem(
+                        value: 0,
+                        child: Text('Year'),
+                      ),
+                      DropdownMenuItem(
+                        value: 1,
+                        child: Text('Month'),
+                      ),
+                      DropdownMenuItem(
+                        value: 2,
+                        child: Text('Week'),
+                      ),
+                      DropdownMenuItem(
+                        value: 3,
+                        child: Text('Day'),
+                      ),
+                      DropdownMenuItem(
+                        value: 4,
+                        child: Text('Custom Budget'),
+                      ),
+                    ],
+                      onChanged: (value) {
+                        setState(() {
+                          selectedPeriod = value!;
+                          updateAmountsForAll(selectedPeriod);
+                        });
+                      },
+                    ),
+                  ],
+                ),
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 10),
               // Scrollable Budget Items
               Expanded(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Column(
-                    children: budgetItems
-                      .asMap()
-                      .entries
-                      .map(
-                        (entry) => Column(
-                          children: [
-                            BudgetItemCard(
-                              label: entry.value.label,
-                              percentage: '${entry.value.percentage}%',
-                              color: entry.value.color,
-                              amount: entry.value.amount,
-                              onDelete: () => removeBudgetItem(entry.key),
-                              onEdit: () => _showEditBudgetItemDialog(context, entry.key),
-                  ),
-                  SizedBox(height: 10),
-                ],
-              ),
-            )
-            .toList(),
+                child: ShaderMask(
+                  shaderCallback: (Rect bounds) {
+                    return LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent, // Top fade
+                        Colors.black,       // Fully visible content
+                        Colors.black,       // Fully visible content
+                        Colors.transparent, // Bottom fade
+                      ],
+                      stops: [0.0, 0.02, 0.98, 1.0], // Control the fade range
+                    ).createShader(bounds);
+                  },
+                  blendMode: BlendMode.dstIn, // Blend mode for fading
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Column(
+                        children: budgetItems
+                          .asMap()
+                          .entries
+                          .map(
+                            (entry) => Column(
+                              children: [
+                                BudgetItemCard(
+                                  label: entry.value.label,
+                                  percentage: '${entry.value.percentage}%',
+                                  color: entry.value.color,
+                                  amount: entry.value.amount,
+                                  onDelete: () => removeBudgetItem(entry.key),
+                                  onEdit: () => _showEditBudgetItemDialog(context, entry.key),
+                              ),
+                              SizedBox(height: 5),
+                            ],
+                          ),
+                        )
+                        .toList(),
+            ),
+          ),
+        ),
       ),
     ),
-  ),
-),
               // Add Budget Item Button
               Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(10.0),
                 child: ElevatedButton(
                   onPressed: () {
                     _showAddBudgetItemDialog(context);
@@ -349,7 +498,7 @@ class BudgetItem {
   final String label;
   final double percentage;
   final Color color;
-  final double amount;
+  double amount;
 
   BudgetItem({required this.label, required this.percentage, required this.color, required this.amount});
 }
@@ -358,7 +507,7 @@ class BudgetItem {
 class BudgetItemCard extends StatelessWidget {
   final String label;
   final String percentage;
-  final double amount;
+  double amount;
   final Color color;
   final VoidCallback? onDelete;
   final VoidCallback? onEdit;
@@ -408,7 +557,6 @@ class BudgetItemCard extends StatelessWidget {
       ),
     );
   }
-
 }
   
 
