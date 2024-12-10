@@ -29,14 +29,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-<<<<<<< HEAD
-=======
-class HomePage extends StatefulWidget {
-  @override
-  _HomePageState createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
   // Initialize account balances
   double debitBalance = 14000.0;
   double creditBalance = 0.0;
@@ -85,7 +77,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
->>>>>>> 1bcd348387ccea8f1a3e1525c7e41d9637b8317f
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -127,19 +118,7 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               ),
-<<<<<<< HEAD
-              Expanded(
-                child: Center(
-                  child: Column(
-                    children: [
-                      AccountCard(title: 'Debit', amount: '\$0.00'),
-                      AccountCard(title: 'Credit', amount: '\$0.00'),
-                      AccountCard(title: 'Savings', amount: '\$0.00'),
-                    ],
-                  ),
-                ),
-              ),
-=======
+              
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 30.0),
                 child: Row(
@@ -176,7 +155,7 @@ class _HomePageState extends State<HomePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '[Bank Name]:',
+                      'Wells Fargo:',
                       style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -246,7 +225,6 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               ),
->>>>>>> 1bcd348387ccea8f1a3e1525c7e41d9637b8317f
             ],
           ),
         ],

@@ -1,4 +1,5 @@
 import 'package:fiscus/screens/home_page.dart';
+import 'package:fiscus/screens/home_screen.dart';
 import 'package:fiscus/screens/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -28,7 +29,6 @@ class MainApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-<<<<<<< HEAD
       home: const AuthWrapper(),
       routes: {
         '/signup': (context) => SignUpPage(),
@@ -58,7 +58,7 @@ class AuthWrapper extends StatelessWidget {
         // If the user is logged in, show HomePage
         if (snapshot.hasData && snapshot.data != null) {
           print('User is logged in: ${snapshot.data!.email}');
-          return HomePage();
+          return HomeScreen();
         }
         // Otherwise, show LoginPage
         else {
@@ -66,8 +66,7 @@ class AuthWrapper extends StatelessWidget {
           return LoginPage();
         }
       },
-=======
-      home: HomeScreen(),
+
 /*
       home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
@@ -82,7 +81,6 @@ class AuthWrapper extends StatelessWidget {
         },
       ),
 */
->>>>>>> 1bcd348387ccea8f1a3e1525c7e41d9637b8317f
     );
   }
 }
