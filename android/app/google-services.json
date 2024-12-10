@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1054264689837",
+    "project_id": "fiscus-fa2ab",
+    "storage_bucket": "fiscus-fa2ab.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1054264689837:android:f6ac64bc93a8f266503224",
+        "android_client_info": {
+          "package_name": "com.example.fiscus"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPegnFSkjByLr3Dd7ww1XGssveLeV5wMs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

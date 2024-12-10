@@ -1,15 +1,39 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
-
-import 'package:fiscus/componets/Account_Card.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fiscus/componets/Account_Card.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  String _userName = 'Loading...';
+
+  @override
+  void initState() {
+    super.initState();
+    _getUserName();
+  }
+
+  Future<void> _getUserName() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      setState(() {
+        _userName = prefs.getString('first_name') ?? 'User';
+      });
+    } catch (e) {
+      print('Error fetching user name: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // Background Image
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
@@ -18,10 +42,9 @@ class HomePage extends StatelessWidget {
               ),
             ),
           ),
-          // Overlay Content
           Column(
             children: [
-              SizedBox(height: 50), // Adjust as needed for spacing
+              SizedBox(height: 50),
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -37,17 +60,11 @@ class HomePage extends StatelessWidget {
                       children: [
                         Text(
                           'Welcome,',
-                          style: TextStyle(
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white),
+                          style: TextStyle(fontSize: 30, color: Colors.white),
                         ),
                         Text(
-                          '[Name]',
-                          style: TextStyle(
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white),
+                          _userName,
+                          style: TextStyle(fontSize: 30, color: Colors.white),
                         ),
                       ],
                     ),
@@ -56,40 +73,13 @@ class HomePage extends StatelessWidget {
               ),
               Expanded(
                 child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(right: 175.0),
-                          child: Text(
-                            '[Bank Name]:',
-                            style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white),
-                          ),
-                        ),
-                        AccountCard(title: 'Debit', amount: '\$0.00'),
-                        AccountCard(title: 'Credit', amount: '\$0.00'),
-                        AccountCard(title: 'Savings', amount: '\$0.00'),
-                      ],
-                    ),
+                  child: Column(
+                    children: [
+                      AccountCard(title: 'Debit', amount: '\$0.00'),
+                      AccountCard(title: 'Credit', amount: '\$0.00'),
+                      AccountCard(title: 'Savings', amount: '\$0.00'),
+                    ],
                   ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.circle, size: 20, color: Colors.grey),
-                    SizedBox(width: 8),
-                    Icon(Icons.circle, size: 16, color: Colors.grey.shade300),
-                    SizedBox(width: 8),
-                    Icon(Icons.circle, size: 16, color: Colors.grey.shade300),
-                  ],
                 ),
               ),
             ],
