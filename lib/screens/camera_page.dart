@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:camera/camera.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CameraPage extends StatefulWidget {
   @override
@@ -39,7 +39,6 @@ class _CameraPageState extends State<CameraPage> {
 
     try {
       final url = Uri.parse('http://192.168.87.228:8000/receipt/post');
-      // Replace with your backend URL
       final request = http.MultipartRequest('POST', url)
         ..files.add(await http.MultipartFile.fromPath('file', _image!.path));
 
@@ -47,10 +46,9 @@ class _CameraPageState extends State<CameraPage> {
 
       if (response.statusCode == 200) {
         final responseData = await response.stream.bytesToString();
-        // Decode the response as JSON
         final receiptData = json.decode(json.decode(responseData));
-        print(receiptData);
-        //Show a pop-up dialog with the receipt info
+
+        // Show dialog to edit the receipt info before saving
         _showReceiptDialog(receiptData);
       } else {
         setState(() {
@@ -68,11 +66,57 @@ class _CameraPageState extends State<CameraPage> {
     }
   }
 
+  // Function to save receipt data to SharedPreferences
+  Future<void> _saveReceiptToSharedPreferences(
+      Map<String, dynamic> receiptData) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    // Get the existing receipts list
+    List<String> savedReceipts = prefs.getStringList('receipts') ?? [];
+
+    // Add the new receipt (convert it to a string)
+    savedReceipts.add(json.encode(receiptData));
+
+    // Save the updated list back to SharedPreferences
+    await prefs.setStringList('receipts', savedReceipts);
+
+    // Optionally, show a confirmation
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Receipt saved!')));
+  }
+
+  // Function to update the receipt in SharedPreferences after modification
+  Future<void> _updateReceiptInSharedPreferences(
+      Map<String, dynamic> updatedReceiptData) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> savedReceipts = prefs.getStringList('receipts') ?? [];
+
+    // Find and update the receipt in the list
+    for (int i = 0; i < savedReceipts.length; i++) {
+      Map<String, dynamic> receipt = json.decode(savedReceipts[i]);
+      if (receipt['date'] == updatedReceiptData['date'] &&
+          receipt['business_name'] == updatedReceiptData['business_name']) {
+        // Update the existing receipt with the new data
+        savedReceipts[i] = json.encode(updatedReceiptData);
+        break;
+      }
+    }
+
+    // Save the updated list back to SharedPreferences
+    await prefs.setStringList('receipts', savedReceipts);
+
+    // Show confirmation
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Receipt updated!')));
+  }
+
   void _showReceiptDialog(Map<String, dynamic> receiptData) {
     final TextEditingController categoryController =
         TextEditingController(text: receiptData['category']);
     final TextEditingController dateController =
         TextEditingController(text: receiptData['date']);
+    final TextEditingController businessController =
+        TextEditingController(text: receiptData['business_name']);
     final TextEditingController totalController =
         TextEditingController(text: receiptData['total'].toString());
 
@@ -96,6 +140,10 @@ class _CameraPageState extends State<CameraPage> {
                     decoration: InputDecoration(labelText: 'Date'),
                   ),
                   TextFormField(
+                    controller: businessController,
+                    decoration: InputDecoration(labelText: 'Business Name'),
+                  ),
+                  TextFormField(
                     controller: totalController,
                     decoration: InputDecoration(labelText: 'Total'),
                     keyboardType: TextInputType.number,
@@ -116,16 +164,15 @@ class _CameraPageState extends State<CameraPage> {
                 // Update the receipt data map with modified values
                 receiptData['category'] = categoryController.text;
                 receiptData['date'] = dateController.text;
+                receiptData['business_name'] = businessController.text;
                 receiptData['total'] =
                     double.tryParse(totalController.text) ?? 0.0;
+                print(receiptData);
+                // Save the updated receipt to SharedPreferences
+                _saveReceiptToSharedPreferences(receiptData);
 
                 // Close the dialog
                 Navigator.of(context).pop();
-
-                // Optionally update the state or perform further actions
-                setState(() {
-                  _receiptInfo = json.encode(receiptData);
-                });
               },
               child: Text('Save'),
             ),
@@ -139,7 +186,7 @@ class _CameraPageState extends State<CameraPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Camera Page'),
+        title: Text('Scan Receipt'),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -148,7 +195,7 @@ class _CameraPageState extends State<CameraPage> {
             padding: const EdgeInsets.all(16.0),
             child: Text(
               'Instructions: Make sure the receipt is flat and on a dark surface. '
-              'Position the receipt within the camera frame for best results. If the scanned receipt is incorrect please modify it.',
+              'Position the receipt within the camera frame for best results. If the scanned receipt is incorrect, please modify it.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
@@ -183,7 +230,7 @@ class _CameraPageState extends State<CameraPage> {
                   ? Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        'Receipt Info: $_receiptInfo',
+                        '$_receiptInfo',
                         textAlign: TextAlign.center,
                       ),
                     )
