@@ -1,5 +1,6 @@
 
 import 'package:fiscus/screens/report_page.dart';
+import 'package:fiscus/screens/stock_page.dart';
 import 'package:flutter/material.dart';
 import 'home_page.dart';
 import 'camera_page.dart';
@@ -23,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
     HomePage(), // Home page
     ReportPage(), // Reports page
     CameraPage(), // Camera page
-    StocksPage(), // Stocks page
+    StockPage(), // Stocks page
     SettingsPage(), // Settings page
   ];
 
